@@ -31,7 +31,13 @@ changed.
   CA certificate file is absent. A read-only connection attempt failed during
   TLS certificate validation (`SELF_SIGNED_CERT_IN_CHAIN`) before schema
   queries could run. The API also fails to start with that configured missing
-  CA file. TLS verification was not disabled to work around this.
+  CA file.
+- **Prior local preview process:** an API development process from the previous
+  preview session was found running with `DATABASE_SSL=false`; it was stopped
+  at the beginning of this audit. Earlier health/readiness requests through
+  that process were read-only checks, but they are not accepted as secure
+  database verification. No migration or write operation was issued. Do not
+  retain or repeat the TLS-verification bypass.
 - **Historical evidence:** an earlier workspace checkpoint records applying
   migrations `001` and `002` and verifying readiness at that time. This audit
   could not independently confirm the current live database state, so that
@@ -259,9 +265,11 @@ dumps.
 - `GET /api/v1/ready` checks selected database objects; it does not prove RLS
   or migration integrity.
 - With the current local CA-path problem, the API can fail before listening.
-  Correct the CA path instead of disabling TLS. With missing credentials,
-  retain preview mode and do not use test or fabricated Telegram identity data
-  as proof of authentication.
+  Correct the CA path instead of disabling TLS. A previous local preview
+  process used a TLS-disabled override; it was stopped and must not be used as
+  the production connection pattern. With missing credentials, retain preview
+  mode and do not use test or fabricated Telegram identity data as proof of
+  authentication.
 - No production monitoring, alert routing, or backup restore procedure was
   verified.
 
