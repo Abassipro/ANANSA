@@ -1,0 +1,73 @@
+Third-party assets and code included with ABASSI
+
+1. WebGL smoke shader
+
+Adapted from MyWallpapers/mywallpaper-addon-fire-shader, pinned at commit
+867443a97cd699c80f133efd3cdd5d5e59e5ce50:
+https://github.com/MyWallpapers/mywallpaper-addon-fire-shader
+
+Copyright (c) 2024 MyWallpaper Community
+Licensed under the MIT License:
+
+MIT License
+
+Copyright (c) 2024 MyWallpaper Community
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+2. Cryptocurrency SVG assets
+
+Six SVG assets in /crypto-icons-hero/ are from 0xa3k5/web3icons, pinned at
+commit 3cce0f390cf902f204a1b3d52f485bcc95d2fe9e:
+https://github.com/0xa3k5/web3icons
+
+Original asset paths:
+raw-svgs/tokens/branded/BTC.svg
+raw-svgs/tokens/branded/ETH.svg
+raw-svgs/tokens/branded/TRX.svg
+raw-svgs/tokens/branded/TON.svg
+raw-svgs/tokens/branded/USDT.svg
+raw-svgs/tokens/branded/SOL.svg
+
+MIT License
+
+Copyright (c) 2024 0xa3k5
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+These token marks remain the property of their respective owners; repository
+licenses do not grant separate trademark or endorsement rights. They are
+presented as illustrative identifiers only, not as a statement that ABASSI
+supports these assets, wallets, networks, or transactions.

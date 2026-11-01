@@ -1,0 +1,17 @@
+Cryptocurrency asset logos
+
+The BTC, ETH, TRX, USDT, and SOL SVGs are from spothq/cryptocurrency-icons:
+https://github.com/spothq/cryptocurrency-icons
+
+Pinned source revision: 1a63530be6e374711a8554f31b17e4cb92c25fa5
+The repository includes a CC0 1.0 license; the complete license text is in
+LICENSE.md. The project README requests that users do not claim the assets as
+their own.
+
+The repository does not contain a TON logo at this revision. TON therefore
+uses the neutral unsupported-asset fallback.
+
+Icons only identify assets in server-recorded withdrawal history. Their
+presence does not imply that ABASSI supports or enables any asset, wallet,
+network, or transfer. The API currently reports no supported payout assets.
+Cryptocurrency names and marks remain the property of their respective owners.
