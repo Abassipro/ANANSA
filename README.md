@@ -63,6 +63,10 @@ own verified values locally.
 `.env` and other `.env.*` files are excluded from Git; `.env.example` must only
 contain placeholders.
 
+See [docs/PRODUCTION-HANDOVER.md](docs/PRODUCTION-HANDOVER.md) for the current
+feature inventory, production-readiness decision, verified limitations, and
+owner configuration checklist.
+
 ## Database migration
 
 Review `server/migrations/001_core.sql` before running it. The migration
@@ -97,6 +101,10 @@ npm.cmd run db:migrate
 The runner records applied migration filenames and uses a PostgreSQL advisory
 lock. Do not run it against production without a reviewed backup and an
 explicit deployment plan.
+
+Migration `003_enable_public_rls.sql` enables RLS without creating client
+policies; the trusted backend database role remains the only intended access
+path. It has not been applied to the live database as part of this audit.
 
 ## Telegram Mini App testing
 
