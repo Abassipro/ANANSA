@@ -174,6 +174,39 @@ proposed production format is
 `https://abassi-one.vercel.app/api/reward?userid=[userId]`; do not configure it
 yet because no Vercel endpoint or authenticated callback verification exists.
 
+### Local setup and verification
+
+1. In the AdsGram publisher dashboard, create/select a rewarded interstitial
+   block and copy its numeric block ID. Do not invent an ID.
+2. Set `ADSGRAM_ENABLED=true` and `ADSGRAM_BLOCK_ID=<dashboard block ID>` in
+   the local server environment. These settings expose the block ID to the
+   signed-in client and allow the SDK to display ads; they do not enable points.
+   `ADSGRAM_SERVER_POSTBACK_SECRET` is not used because the documented callback
+   contract does not define a secret or signature.
+3. Run `npm run dev`, sign in through the configured Telegram Mini App, and
+   open Tasks. The ad button is available only to a signed-in user when the
+   block ID is configured. Completion, skipping, SDK failure, or unavailable
+   ads never award points.
+4. Test with `npm run typecheck`, `npm test`, `npm run build`, and `npm audit`.
+   API tests exercise missing/invalid parameters, repeated and concurrent
+   unsigned requests, and a loopback HTTP request. They assert the reward route
+   makes no database call and creates no ledger entry.
+
+### Requirements to activate reward crediting
+
+Keep automatic reward crediting disabled until AdsGram publishes a server
+callback contract that includes (a) a verifiable authenticity mechanism and
+(b) a unique event identifier with documented replay behavior. Obtain and
+verify that contract with AdsGram, then implement server-side verification,
+account resolution from verified identity, replay protection using the event
+ID, and atomic ledger crediting through the existing points transaction
+service. Confirm the approved reward amount and operational policy separately;
+this integration does not define or infer reward amounts. Add tests for valid
+and invalid provider proofs, event replay/concurrency, and transaction rollback.
+Only after that work is reviewed should the authenticated endpoint be deployed
+and its exact deployed URL configured in the AdsGram dashboard. The proposed
+Vercel URL has not been deployed or verified.
+
 ## Interface assets
 
 The Mini App uses the supplied ABASSI logo unchanged and the existing silver

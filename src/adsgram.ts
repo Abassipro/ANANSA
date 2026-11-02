@@ -1,6 +1,7 @@
-import { isAdsgramRewardedCompletion, type AdsgramShowResult } from "./adsgram-result.js";
-
-export { isAdsgramRewardedCompletion } from "./adsgram-result.js";
+import {
+  requireAdsgramRewardedCompletion,
+  type AdsgramShowResult,
+} from "./adsgram-result.js";
 
 interface AdsgramController {
   show(): Promise<AdsgramShowResult>;
@@ -31,11 +32,7 @@ export async function showAdsgramRewardedAd(blockId: string): Promise<AdsgramSho
     controllers.set(blockId, controller);
   }
 
-  const result = await controller.show();
-  if (!isAdsgramRewardedCompletion(result)) {
-    throw new Error(result.description || "The rewarded ad was not completed.");
-  }
-  return result;
+  return requireAdsgramRewardedCompletion(() => controller.show());
 }
 
 function loadAdsgramSdk(): Promise<AdsgramApi> {

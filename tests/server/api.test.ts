@@ -218,6 +218,22 @@ describe("local API integration", () => {
     expect(query).not.toHaveBeenCalled();
   });
 
+  it("fails closed even when database operations would fail", async () => {
+    const query = vi.fn().mockRejectedValue(new Error("database unavailable"));
+    const app = await createTestApp({ query } as unknown as Database);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/reward?userid=123456789",
+    });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json()).toEqual({
+      error: "adsgram_callback_verification_unavailable",
+    });
+    expect(query).not.toHaveBeenCalled();
+  });
+
   it("reports health and gives a specific readiness response without a database", async () => {
     const app = await createTestApp();
     const health = await app.inject({ method: "GET", url: "/api/v1/health" });

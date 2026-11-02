@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { isAdsgramRewardedCompletion } from "../../src/adsgram-result.js";
+import {
+  isAdsgramRewardedCompletion,
+  requireAdsgramRewardedCompletion,
+} from "../../src/adsgram-result.js";
 import { loadConfig, publicConfig } from "../../server/src/config.js";
 
 describe("AdsGram rewarded ad configuration", () => {
@@ -47,5 +50,28 @@ describe("AdsGram rewarded ad configuration", () => {
       state: "destroy",
       error: true,
     })).toBe(false);
+  });
+
+  it("rejects skipped ads and SDK-reported failures", async () => {
+    const skipped = {
+      done: false,
+      description: "skipped",
+      state: "destroy" as const,
+      error: false,
+    };
+    const failed = {
+      done: true,
+      description: "provider error",
+      state: "destroy" as const,
+      error: true,
+    };
+
+    await expect(requireAdsgramRewardedCompletion(async () => skipped))
+      .rejects.toThrow("skipped");
+    await expect(requireAdsgramRewardedCompletion(async () => failed))
+      .rejects.toThrow("provider error");
+    await expect(requireAdsgramRewardedCompletion(async () => {
+      throw new Error("SDK request failed");
+    })).rejects.toThrow("SDK request failed");
   });
 });
