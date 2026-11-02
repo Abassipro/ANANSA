@@ -59,6 +59,7 @@ export interface PublicConfig {
   network: string;
   walletConfigured: false;
   adsConfigured: false;
+  adsgramBlockId: string | null;
   payoutsEnabled: false;
   revenueShareEnabled: false;
   shareRewardEnabled: false;

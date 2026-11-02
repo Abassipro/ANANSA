@@ -151,6 +151,73 @@ afterEach(async () => {
 });
 
 describe("local API integration", () => {
+  it("fails closed on AdsGram Reward URL requests without verifiable callback authentication", async () => {
+    const query = vi.fn();
+    const database = { query } as unknown as Database;
+    const app = await createTestApp(database);
+
+    const missingUser = await app.inject({ method: "GET", url: "/api/reward" });
+    const invalidUser = await app.inject({ method: "GET", url: "/api/reward?userid=not-a-telegram-id" });
+    const unexpectedReward = await app.inject({ method: "GET", url: "/api/reward?userid=123456789&points=100000" });
+    const repeatedUser = await app.inject({ method: "GET", url: "/api/reward?userid=123456789&userid=999999999" });
+
+    expect(missingUser.statusCode).toBe(400);
+    expect(invalidUser.statusCode).toBe(400);
+    expect(unexpectedReward.statusCode).toBe(400);
+    expect(repeatedUser.statusCode).toBe(400);
+
+    const callback = await app.inject({
+      method: "GET",
+      url: "/api/reward?userid=123456789",
+    });
+    expect(callback.statusCode).toBe(503);
+    expect(callback.json()).toEqual({
+      error: "adsgram_callback_verification_unavailable",
+    });
+    expect(query).not.toHaveBeenCalled();
+
+    const unknownUser = await app.inject({
+      method: "GET",
+      url: "/api/reward?userid=999999999",
+    });
+    expect(unknownUser.statusCode).toBe(503);
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it("does not turn repeated, concurrent, or client-authenticated AdsGram callbacks into credits", async () => {
+    const query = vi.fn();
+    const database = { query } as unknown as Database;
+    const app = await createTestApp(database);
+    const request = (authorization?: string) => app.inject({
+      method: "GET",
+      url: "/api/reward?userid=123456789",
+      ...(authorization ? { headers: { authorization } } : {}),
+    });
+
+    const responses = await Promise.all([
+      request(),
+      request(`tma ${signedInitData()}`),
+      request("Bearer forged-token"),
+    ]);
+
+    expect(responses.map(({ statusCode }) => statusCode)).toEqual([503, 503, 503]);
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it("serves the fail-closed Reward URL over local HTTP without touching the database", async () => {
+    const query = vi.fn();
+    const app = await createTestApp({ query } as unknown as Database);
+    const baseUrl = await app.listen({ host: "127.0.0.1", port: 0 });
+
+    const response = await fetch(new URL("/api/reward?userid=123456789", baseUrl));
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: "adsgram_callback_verification_unavailable",
+    });
+    expect(query).not.toHaveBeenCalled();
+  });
+
   it("reports health and gives a specific readiness response without a database", async () => {
     const app = await createTestApp();
     const health = await app.inject({ method: "GET", url: "/api/v1/health" });

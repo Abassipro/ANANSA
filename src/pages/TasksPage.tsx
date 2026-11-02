@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ArrowDownToLine, ArrowUpRight, CalendarCheck, Check, CircleHelp, Clock3, Film, Globe2, Instagram, Search, ShieldCheck, Sparkles, UsersRound, X } from "lucide-react";
 import { PageHeading } from "../components/PageHeading";
 import { useAppContext } from "../context/AppContext";
 import type { TaskDefinition, TaskFilter } from "../types";
 import { ApiError, submitSocialTask } from "../api";
+import { showAdsgramRewardedAd } from "../adsgram";
 
 const taskIcons: Record<string, typeof Sparkles> = {
   daily_checkin: CalendarCheck,
@@ -33,6 +34,8 @@ export function TasksPage() {
   const [search, setSearch] = useState("");
   const [openedTaskIds, setOpenedTaskIds] = useState<Set<string>>(() => new Set());
   const [submittingTaskId, setSubmittingTaskId] = useState<string | null>(null);
+  const [activeAdTaskId, setActiveAdTaskId] = useState<string | null>(null);
+  const adRequestPending = useRef(false);
   const tasks = config.tasks.length > 0 ? config.tasks : [];
   const matchingTasks = useMemo(() => tasks.filter((task) => {
     const matchesFilter =
@@ -93,6 +96,29 @@ export function TasksPage() {
     }
   };
 
+  const showRewardedAd = async (task: TaskDefinition) => {
+    if (adRequestPending.current) return;
+    if (!account || !config.adsgramBlockId) {
+      announce("Rewarded ads are not configured for this account.", "error");
+      return;
+    }
+
+    adRequestPending.current = true;
+    setActiveAdTaskId(task.id);
+    try {
+      await showAdsgramRewardedAd(config.adsgramBlockId);
+      announce(
+        "Ad completed. No points were awarded because AdsGram does not authenticate its server callback.",
+        "info",
+      );
+    } catch {
+      announce("The ad was skipped, unavailable, or failed. No points were awarded.", "error");
+    } finally {
+      adRequestPending.current = false;
+      setActiveAdTaskId(null);
+    }
+  };
+
   return (
     <div className="page-stack">
       <PageHeading kicker="ACTIVITY & OPPORTUNITY" title="Small actions." accent="Real progress." description="Every reward is shown with its real verification status. Proposed points are not a promise or a claim." />
@@ -126,9 +152,12 @@ export function TasksPage() {
               const completionStatus = account?.taskStatuses[task.id] ?? null;
               const isApproved = completionStatus === "approved";
               const isRejected = completionStatus === "rejected";
+              const isRewardedAd = task.kind === "rewarded_ad";
               const actionAvailable = isCheckIn
                 ? Boolean(account && config.checkInEnabled && !checkInToday)
-                : !isApproved && !completionStatus && task.kind === "social" && Boolean(task.destinationUrl);
+                : isRewardedAd
+                  ? Boolean(account && config.adsgramBlockId)
+                  : !isApproved && !completionStatus && task.kind === "social" && Boolean(task.destinationUrl);
               return (
                 <article className="task-row" key={task.id}>
                   <span className={`task-row-icon task-row-icon--${task.kind}`}><Icon size={17} strokeWidth={1.8} aria-hidden="true" /></span>
@@ -140,10 +169,18 @@ export function TasksPage() {
                   <div className="task-points"><strong>{task.proposedPoints}</strong><span>points · proposed</span></div>
                   <span className={`verification-pill ${checkInToday || isApproved ? "verification-pill--complete" : actionAvailable ? "verification-pill--open" : "verification-pill--pending"}`}>
                     {checkInToday || isApproved ? <Check size={12} /> : task.kind === "daily_checkin" ? <CalendarCheck size={12} /> : task.kind === "rewarded_ad" ? <Film size={12} /> : <Clock3 size={12} />}
-                    {checkInToday ? "Checked in" : isApproved ? "Verified" : isRejected ? "Not verified" : completionStatus === "pending_verification" ? "Awaiting verification" : task.kind === "daily_checkin" ? config.checkInEnabled ? "Ready" : "Policy pending" : task.kind === "rewarded_ad" ? "Provider setup required" : task.destinationUrl ? "Needs verification" : "Awaiting official URL"}
+                    {checkInToday ? "Checked in" : isApproved ? "Verified" : isRejected ? "Not verified" : completionStatus === "pending_verification" ? "Awaiting verification" : task.kind === "daily_checkin" ? config.checkInEnabled ? "Ready" : "Policy pending" : isRewardedAd ? config.adsgramBlockId ? "Ad available · no points" : "Provider setup required" : task.destinationUrl ? "Needs verification" : "Awaiting official URL"}
                   </span>
                   {isCheckIn && actionAvailable ? (
                     <button className="task-action" disabled={checkingIn} onClick={() => void checkIn()}>{checkingIn ? "Recording…" : "Check in"}</button>
+                  ) : isRewardedAd && actionAvailable ? (
+                    <button
+                      className="task-action"
+                      disabled={activeAdTaskId !== null}
+                      onClick={() => void showRewardedAd(task)}
+                    >
+                      {activeAdTaskId === task.id ? "Loading ad…" : "Watch ad"}
+                    </button>
                   ) : !isCheckIn && actionAvailable ? (
                     <button
                       className="task-action"
@@ -160,7 +197,7 @@ export function TasksPage() {
                     </button>
                   ) : (
                     <button className="task-action task-action--disabled" disabled aria-label={checkInToday ? "Already checked in today" : task.kind === "rewarded_ad" ? "Rewarded ads are not configured" : "Awaiting campaign configuration"}>
-                      {checkInToday || isApproved ? "Done" : task.kind === "rewarded_ad" ? "Unavailable" : "Not available"}
+                      {checkInToday || isApproved ? "Done" : isRewardedAd ? "Unavailable" : "Not available"}
                     </button>
                   )}
                 </article>

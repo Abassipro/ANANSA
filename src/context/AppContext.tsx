@@ -45,6 +45,7 @@ const initialConfig: PublicConfig = {
   network: "unconfigured",
   walletConfigured: false,
   adsConfigured: false,
+  adsgramBlockId: null,
   payoutsEnabled: false,
   revenueShareEnabled: false,
   shareRewardEnabled: false,

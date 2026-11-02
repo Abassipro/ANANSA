@@ -63,10 +63,6 @@ own verified values locally.
 `.env` and other `.env.*` files are excluded from Git; `.env.example` must only
 contain placeholders.
 
-See [docs/PRODUCTION-HANDOVER.md](docs/PRODUCTION-HANDOVER.md) for the current
-feature inventory, production-readiness decision, verified limitations, and
-owner configuration checklist.
-
 ## Database migration
 
 Review `server/migrations/001_core.sql` before running it. The migration
@@ -148,6 +144,35 @@ configured. A signed-in user may record a social-task claim as
 `pending_verification`; opening a link or recording a claim does not award
 points. No provider verification or admin review flow is configured, so claims
 remain pending until that workflow is implemented.
+
+## AdsGram rewarded ads
+
+The official AdsGram [Reward URL documentation](https://docs.adsgram.ai/publisher/get-block-id#create-ad-unit)
+describes an optional HTTPS `GET` request with the viewer's Telegram ID in the
+configured `userid=[userId]` URL placeholder. The public contract documents no
+provider signature, shared secret, event ID, or transaction ID. The SDK's
+`show()`/`onReward` result is a client-side signal, not independently
+authenticated server evidence.
+
+Accordingly, `/api/reward` validates the documented `userid` shape but returns
+`503 adsgram_callback_verification_unavailable` for every well-formed callback.
+It does not look up an account, trust the supplied ID, accept a reward amount,
+or write to the points ledger. This is intentionally fail-closed; do not
+configure the proposed Reward URL or enable reward crediting until AdsGram
+provides and ABASSI implements an authenticated server callback contract. Setting
+`ADSGRAM_ENABLED=true` and a numeric `ADSGRAM_BLOCK_ID` enables only the
+client-side ad display; it does not enable reward credits. `ADSGRAM_BLOCK_ID`
+is a public AdsGram block identifier, not a secret. Do not set
+`ADSGRAM_SERVER_POSTBACK_SECRET` unless AdsGram documents a supported
+verification mechanism for it.
+
+This repository contains a Fastify API, but no Vercel function route or Vercel
+routing configuration. The route can be tested locally through the existing
+Vite `/api` proxy; its availability at a Vercel deployment is not established.
+If AdsGram's publisher dashboard accepts the documented placeholder, the
+proposed production format is
+`https://abassi-one.vercel.app/api/reward?userid=[userId]`; do not configure it
+yet because no Vercel endpoint or authenticated callback verification exists.
 
 ## Interface assets
 

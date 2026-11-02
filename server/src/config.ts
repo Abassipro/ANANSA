@@ -80,6 +80,10 @@ export function publicConfig(config: AppConfig) {
     network: config.WALLET_NETWORK,
     walletConfigured: false,
     adsConfigured: false,
+    adsgramBlockId:
+      config.ADSGRAM_ENABLED && /^[0-9]+$/.test(config.ADSGRAM_BLOCK_ID ?? "")
+        ? config.ADSGRAM_BLOCK_ID ?? null
+        : null,
     payoutsEnabled: false,
     revenueShareEnabled: false,
     shareRewardEnabled: false,

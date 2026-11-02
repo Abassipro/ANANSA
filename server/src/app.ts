@@ -87,6 +87,29 @@ export function createApp({
     return payload;
   });
 
+  app.get(
+    "/api/reward",
+    {
+      logLevel: "silent",
+      config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
+      preValidation: async (request, reply) => {
+        const query = new URLSearchParams(request.raw.url?.split("?", 2)[1] ?? "");
+        const userIds = query.getAll("userid");
+        if (
+          query.size !== 1
+          || userIds.length !== 1
+          || !/^[0-9]{1,20}$/.test(userIds[0] ?? "")
+        ) {
+          await reply.code(400).send({ error: "invalid_reward_callback_request" });
+        }
+      },
+    },
+    async (_request, reply) =>
+      reply.code(503).send({
+        error: "adsgram_callback_verification_unavailable",
+      }),
+  );
+
   const authenticateTelegram = async (
     request: FastifyRequest,
     reply: FastifyReply,
