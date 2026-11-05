@@ -1,4 +1,4 @@
-# ABASSI Telegram Mini App
+# Anansa Telegram Mini App
 
 ## Local development
 
